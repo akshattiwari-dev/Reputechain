@@ -1,6 +1,5 @@
 
  
- 
 import express from "express";
 import path from "path";
 import fs from "fs";
@@ -14,7 +13,7 @@ import "dotenv/config";
 import { generateNonce, SiweMessage } from "siwe";
 import jwt from "jsonwebtoken";
 import { ethers } from "ethers";
-import { db, testDbConnection } from "./src/db/index";
+import { db } from "./src/db/index";
 import { certificates as certificatesTable } from "./src/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { validateAadhaar, maskAadhaar, normalizeAadhaar } from "./src/lib/utils";
@@ -169,29 +168,6 @@ function isUniqueViolation(e: any): boolean {
   return e?.code === "23505" || e?.cause?.code === "23505";
 }
  
-/** True if the table/column doesn't exist — the classic "schema.ts was
- *  updated but `drizzle-kit push` was never run against this DB" symptom.
- *  Postgres codes: 42P01 = relation (table) does not exist,
- *  42703 = column does not exist. */
-function isSchemaError(e: any): boolean {
-  const code = e?.code || e?.cause?.code;
-  return code === "42P01" || code === "42703";
-}
- 
-/** True if the error looks like a lost/refused/auth-failed DB connection
- *  (wrong password, host unreachable, Neon project paused/suspended, etc.)
- *  rather than a problem with the request data itself. */
-function isDbConnectionError(e: any): boolean {
-  const code = e?.code || e?.cause?.code;
-  const connectionCodes = ["ECONNREFUSED", "ENOTFOUND", "ETIMEDOUT", "28P01", "3D000", "57P03"];
-  if (connectionCodes.includes(code)) return true;
-  const msg = String(e?.message || "").toLowerCase();
-  return msg.includes("password authentication failed")
-    || msg.includes("connection terminated")
-    || msg.includes("timeout expired")
-    || msg.includes("connect econnrefused");
-}
- 
 async function issueIdentityBadge(opts: {
   userAddress: string;
   category: number;
@@ -203,12 +179,13 @@ async function issueIdentityBadge(opts: {
 }): Promise<{ hash: string; txHash: string }> {
   const hash = ethers.id(`${opts.courseName}-${opts.userAddress}-${Date.now()}`);
  
-  // Aadhaar self-verification is intentionally OFF-CHAIN ONLY — it never
-  // calls the contract, so it never needs gas/MATIC in the issuer wallet.
-  // This is different from issuer-issued certificates (see handleIssue /
-  // /api/issue), which still mint on-chain as before. Self-verification is
-  // just proving "this wallet passed a format/signature check," which
-  // doesn't need blockchain permanence the way an issued credential does.
+  let txHash = "mock-tx-hash";
+  if (signer && CONTRACT_ADDRESS !== "0x1111111111111111111111111111111111111111") {
+    const tx = await contract.issueCertificate(hash, opts.userAddress, hash, "", 0, opts.category, opts.boost);
+    const receipt = await tx.wait();
+    txHash = receipt.hash;
+  }
+ 
   if (db) {
     await db.insert(certificatesTable).values({
       hash,
@@ -225,10 +202,10 @@ async function issueIdentityBadge(opts: {
     });
     // Note: no try/catch swallow here on purpose — a unique-violation must
     // propagate to the caller so it can be turned into a 409, not silently
-    // dropped.
+    // dropped (which would mint an on-chain badge with no off-chain record).
   }
  
-  return { hash, txHash: "off-chain" };
+  return { hash, txHash };
 }
  
 async function checkDuplicateIdentity(identityHash: string, userAddress: string): Promise<string | null> {
@@ -285,10 +262,7 @@ async function startServer() {
     },
   });
  
-  app.get("/api/health", async (req, res) => {
-    const dbStatus = await testDbConnection();
-    res.json({ status: "ok", db: dbStatus });
-  });
+  app.get("/api/health", (req, res) => res.json({ status: "ok" }));
  
   app.get("/api/auth/nonce", (req, res) => {
     const nonce = generateNonce();
@@ -307,10 +281,9 @@ async function startServer() {
       const fields = await siweMessage.verify({ signature, nonce: expectedNonce });
       nonces.delete(id);
  
-      // Login is open to any wallet that can sign a valid SIWE message —
-      // it just proves address ownership. Whether this address is allowed
-      // to issue certificates is a separate, per-route authorization check
-      // (see requireIssuer below), not a login gate.
+      const isIssuer = await isVerifiedIssuer(fields.data.address);
+      if (!isIssuer) return res.status(403).json({ error: "Address is not a verified issuer." });
+ 
       const token = jwt.sign({ address: fields.data.address }, JWT_SECRET, { expiresIn: '1d' });
       res.json({ success: true, token, address: fields.data.address });
     } catch (e) {
@@ -329,33 +302,6 @@ async function startServer() {
       res.status(401).json({ error: "Invalid token" });
     }
   };
- 
-  // Issuer-only gate: use on top of requireAuth for actions that must be
-  // restricted to verified issuers (issuing/revoking certificates, uploading
-  // attachments) — NOT on login or on read-only holder routes like
-  // /api/my-badges or /api/profile.
-  const requireIssuer = async (req: any, res: any, next: any) => {
-    try {
-      const isIssuer = await isVerifiedIssuer(req.user.address);
-      if (!isIssuer) return res.status(403).json({ error: "Address is not a verified issuer." });
-      next();
-    } catch (e) {
-      res.status(500).json({ error: "Issuer check failed." });
-    }
-  };
- 
-  // Used by the Issuer Dashboard right after login to decide whether this
-  // address should even be let into the portal. Login itself stays open to
-  // any wallet (see /api/auth/verify) — this is a page-level gate, not a
-  // login gate, so Digital Vault / Profile keep working for non-issuers.
-  app.get("/api/auth/is-issuer", requireAuth, async (req: any, res: any) => {
-    try {
-      const isIssuer = await isVerifiedIssuer(req.user.address);
-      res.json({ isIssuer });
-    } catch (e) {
-      res.status(500).json({ error: "Issuer check failed." });
-    }
-  });
  
   app.get("/api/verify/:hash", async (req, res) => {
     try {
@@ -425,7 +371,6 @@ async function startServer() {
   app.post(
     "/api/upload-metadata",
     requireAuth,
-    requireIssuer,
     (req, res, next) => {
       documentUpload.single("file")(req, res, (err) => {
         if (err) return res.status(400).json({ error: err.message || "Upload rejected." });
@@ -471,7 +416,7 @@ async function startServer() {
     }
   );
  
-  app.post("/api/issue", requireAuth, requireIssuer, async (req: any, res: any) => {
+  app.post("/api/issue", requireAuth, async (req: any, res: any) => {
     try {
       const { recipientName, courseName, issuerName, expiry, metadataURI, subjectAddress } = req.body;
       if (!recipientName) return res.status(400).json({ error: "Missing required fields" });
@@ -566,15 +511,6 @@ async function startServer() {
       }
     } catch (e: any) {
       console.error("verify-identity error:", e);
-      // Distinguish "your DB/RPC config is broken" from "the request itself
-      // was bad" — the old generic message made both look identical and
-      // impossible to debug from the client side.
-      if (isDbConnectionError(e)) {
-        return res.status(503).json({ error: "Database is unreachable right now — check DATABASE_URL / Neon status, then try again." });
-      }
-      if (isSchemaError(e)) {
-        return res.status(503).json({ error: "Database schema is out of date — the certificates table/columns are missing. Run migrations against this database, then try again." });
-      }
       res.status(500).json({ error: "Failed to verify identity." });
     }
   });
@@ -653,12 +589,6 @@ async function startServer() {
         }
       } catch (e: any) {
         console.error("aadhaar-qr verification error:", e);
-        if (isDbConnectionError(e)) {
-          return res.status(503).json({ error: "Database is unreachable right now — check DATABASE_URL / Neon status, then try again." });
-        }
-        if (isSchemaError(e)) {
-          return res.status(503).json({ error: "Database schema is out of date — the certificates table/columns are missing. Run migrations against this database, then try again." });
-        }
         res.status(500).json({ error: "Failed to verify Aadhaar QR." });
       }
     }
@@ -671,14 +601,7 @@ async function startServer() {
         .where(eq(certificatesTable.subjectAddress, req.user.address))
         .orderBy(desc(certificatesTable.issuedAt));
       res.json({ badges: records });
-    } catch (e: any) {
-      // Previously this silently returned an empty list on ANY error,
-      // which made real DB/schema problems look identical to "you just
-      // don't have any badges yet." Log it loudly so it's not invisible.
-      console.error("my-badges error:", e);
-      if (isDbConnectionError(e) || isSchemaError(e)) {
-        return res.status(503).json({ error: "Could not load badges — database issue, check server logs.", badges: [] });
-      }
+    } catch (e) {
       res.json({ badges: [] });
     }
   });
@@ -698,7 +621,7 @@ async function startServer() {
     }
   });
  
-  app.post("/api/revoke/:hash", requireAuth, requireIssuer, async (req: any, res: any) => {
+  app.post("/api/revoke/:hash", requireAuth, async (req: any, res: any) => {
     try {
       const hash = req.params.hash;
       if (signer && CONTRACT_ADDRESS !== "0x1111111111111111111111111111111111111111") {
@@ -716,7 +639,7 @@ async function startServer() {
     }
   });
  
-  app.get("/api/certificates", requireAuth, requireIssuer, async (req: any, res: any) => {
+  app.get("/api/certificates", requireAuth, async (req: any, res: any) => {
     if (!db) return res.json({ data: [] });
     try {
       const records = await db.select().from(certificatesTable).where(eq(certificatesTable.issuerAddress, req.user.address)).orderBy(desc(certificatesTable.issuedAt));
