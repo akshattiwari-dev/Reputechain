@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🔗 ReputeChain
+ 🔗 ReputeChain
 
-**Tamper-proof credential verification, built on trust you can actually audit.**
+Tamper-proof credential verification, built on trust you can actually audit.
 
-*A decentralized platform where issuers mint verifiable credentials, holders own their documents in a personal wallet, and verifiers confirm authenticity in seconds — no phone calls, no PDFs, no blind trust.*
+A decentralized platform where issuers mint verifiable credentials, holders own their documents in a personal wallet, and verifiers confirm authenticity in seconds — no phone calls, no PDFs, no blind trust.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -79,13 +79,13 @@ This isn't a tutorial clone. It's a project I designed end-to-end — smart cont
 └─────────────┘                            └──────────────────┘
 ```
 
-> **Note on design tradeoffs:** the current build indexes credential metadata off-chain in Postgres for fast lookups, while the credential hash itself is anchored on-chain as the source of truth for tamper-evidence. This is a deliberate MVP tradeoff — a fully on-chain read path is on the roadmap (see below).
+> Note on design tradeoffs: the current build indexes credential metadata off-chain in Postgres for fast lookups, while the credential hash itself is anchored on-chain as the source of truth for tamper-evidence. This is a deliberate MVP tradeoff — a fully on-chain read path is on the roadmap (see below).
 
 ---
 
 ## Getting started
 
-**Prerequisites:** Node.js 18+, [Bun](https://bun.sh/), PostgreSQL
+Prerequisites: Node.js 18+, [Bun](https://bun.sh/), PostgreSQL
 
 ```bash
 # 1. Clone and install
@@ -145,7 +145,6 @@ I'm a software engineer with **3 years of experience** building production web a
 
 This project is where I'm teaching myself Web3 properly — not just token swaps, but using blockchain for what it's actually good at: making a claim tamper-evident and independently verifiable.
 
-**Get in touch:** [your email] · [your LinkedIn] · [your portfolio site]
 
 ---
 
