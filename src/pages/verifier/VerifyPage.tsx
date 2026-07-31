@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Search, ShieldCheck, ShieldAlert, Loader2, ExternalLink, QrCode } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Html5QrcodeScanner } from "html5-qrcode";
+import { API_BASE } from "../../lib/api";
 
 interface VerifyResult {
   verified: boolean;
@@ -45,7 +46,7 @@ export function VerifyPage() {
     }
 
     try {
-      const res = await fetch(`/api/verify/${searchHash}`);
+       const res = await fetch(`${API_BASE}/api/verify/${searchHash}`);
       const data = await res.json();
       setResult(data);
     } catch (err) {

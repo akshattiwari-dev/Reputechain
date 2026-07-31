@@ -20,6 +20,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { API_BASE } from "../../lib/api";
  
 type VerificationStatus = "idle" | "verifying" | "success" | "error";
  
@@ -58,7 +59,7 @@ export function ProfilePage() {
   React.useEffect(() => {
     if (!token) return;
     
-    fetch('/api/profile', {
+    fetch(`${API_BASE}/api/profile`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(r => r.json())
@@ -67,7 +68,7 @@ export function ProfilePage() {
       })
       .catch(console.error);
  
-    fetch('/api/my-badges', {
+    fetch(`${API_BASE}/api/my-badges`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(r => r.json())
@@ -117,7 +118,7 @@ export function ProfilePage() {
       if (type === "aadhaar" && file) {
         const formData = new FormData();
         formData.append("qrImage", file);
-        res = await fetch('/api/verify-identity/aadhaar-qr', {
+        res = await fetch(`${API_BASE}/api/verify-identity/aadhaar-qr`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
@@ -126,7 +127,7 @@ export function ProfilePage() {
         if (type !== "github" && !idNumber.trim()) {
           throw new Error("Please enter a value before verifying.");
         }
-        res = await fetch('/api/verify-identity', {
+        res = await fetch(`${API_BASE}/api/verify-identity`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

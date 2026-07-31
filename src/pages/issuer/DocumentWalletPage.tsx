@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   GraduationCap
 } from "lucide-react";
+import { API_BASE } from "../../lib/api";
 
 export function DocumentWalletPage() {
   const { address, token, connect } = useWallet();
@@ -26,7 +27,7 @@ export function DocumentWalletPage() {
       return;
     }
 
-    fetch('/api/my-badges', {
+     fetch(`${API_BASE}/api/my-badges`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(r => r.json())
@@ -125,7 +126,7 @@ ReputeChain verification portal.
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {documents.map((doc, idx) => (
               <DocumentCard 
-                key={doc.hash || idx} 
+              key={String(doc.hash || idx)}
                 doc={doc} 
                 onDownload={() => handleDownload(doc)} 
               />

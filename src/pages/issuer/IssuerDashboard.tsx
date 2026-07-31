@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Wallet, Plus, FileText, CheckCircle2, Loader2, ArrowRight, ShieldAlert, BarChart3, Upload, ExternalLink } from "lucide-react";
 import { parse as parseCSV } from "csv-parse/browser/esm/sync";
 import { useWallet } from "../../contexts/WalletContext";
+import { API_BASE } from "../../lib/api";
  
 export function IssuerDashboard() {
   const { address, token, isConnecting, connect } = useWallet();
@@ -50,7 +51,7 @@ function DashboardView({ token, address }: { token: string; address: string }) {
  
   const fetchCertificates = async () => {
     try {
-      const res = await fetch("/api/certificates", {
+      const res = await fetch(`${API_BASE}/api/certificates`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -74,7 +75,7 @@ function DashboardView({ token, address }: { token: string; address: string }) {
         const uploadForm = new FormData();
         uploadForm.append("file", fileToUpload);
  
-        const uploadRes = await fetch("/api/upload-metadata", {
+        const uploadRes = await fetch(`${API_BASE}/api/upload-metadata`, {
           method: "POST",
           headers: { "Authorization": `Bearer ${token}` },
           // No Content-Type here — the browser sets the multipart boundary
@@ -93,7 +94,7 @@ function DashboardView({ token, address }: { token: string; address: string }) {
         metadataURI = uploadData.metadataURI;
       }
  
-      const res = await fetch("/api/issue", {
+      const res = await fetch(`${API_BASE}/api/issue`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ ...formData, metadataURI })
@@ -121,7 +122,7 @@ function DashboardView({ token, address }: { token: string; address: string }) {
   const handleRevoke = async (hash: string) => {
     if (!window.confirm("Are you sure you want to revoke this certificate? This is permanent.")) return;
     try {
-      const res = await fetch(`/api/revoke/${hash}`, {
+      const res = await fetch(`${API_BASE}/api/revoke/${hash}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -142,7 +143,7 @@ function DashboardView({ token, address }: { token: string; address: string }) {
         const records: any[] = parseCSV(csvText, { columns: true, skip_empty_lines: true });
         
         for (const record of records) {
-          await fetch("/api/issue", {
+            await fetch(`${API_BASE}/api/issue`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({

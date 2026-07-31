@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE } from "../../lib/api";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, ShieldCheck, ShieldAlert, Loader2, Users, Briefcase } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -16,7 +17,7 @@ export function RecruiterPortal() {
     setResult(null);
     
     try {
-      const res = await fetch(`/api/verify/${searchInput}`);
+      const res = await fetch(`${API_BASE}/api/verify/${searchInput}`);
       const data = await res.json();
       setResult(data);
     } catch (err) {

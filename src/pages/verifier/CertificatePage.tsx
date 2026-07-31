@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { API_BASE } from "../../lib/api";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
@@ -14,7 +15,7 @@ export function CertificatePage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`/api/verify/${id}`)
+        fetch(`${API_BASE}/api/verify/${id}`)
         .then(res => res.json())
         .then(res => {
           if (res.verified) setData(res.data);

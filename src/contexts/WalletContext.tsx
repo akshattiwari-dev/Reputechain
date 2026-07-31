@@ -1,4 +1,4 @@
-
+import { API_BASE } from "../lib/api";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { polygonAmoy } from 'viem/chains';
@@ -91,7 +91,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
  
       const [account] = await client.requestAddresses();
  
-      const nonceRes = await fetch('/api/auth/nonce');
+      const nonceRes = await fetch(`${API_BASE}/api/auth/nonce`);
       if (!nonceRes.ok) throw new Error('Failed to fetch nonce');
       const { nonce } = await nonceRes.json();
  
@@ -112,7 +112,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         message: messageToSign,
       });
  
-      const verifyRes = await fetch('/api/auth/verify', {
+      const verifyRes = await fetch(`${API_BASE}/api/auth/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageToSign, signature }),
