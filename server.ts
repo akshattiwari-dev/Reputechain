@@ -1,6 +1,4 @@
 
- 
- 
 import express from "express";
 import path from "path";
 import fs from "fs";
@@ -9,7 +7,6 @@ import helmet from "helmet";
 import crypto from "crypto";
 import multer from "multer";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import { createServer as createViteServer } from "vite";
 import "dotenv/config";
 import { generateNonce, SiweMessage } from "siwe";
 import jwt from "jsonwebtoken";
@@ -726,14 +723,7 @@ async function startServer() {
     }
   });
  
-  if (!IS_PROD) {
-    const vite = await createViteServer({ server: { middlewareMode: true }, appType: "spa" });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => res.sendFile(path.join(distPath, "index.html")));
-  }
+  app.get("/", (req, res) => res.json({ status: "ReputeChain API running" }));
  
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`\n  ReputeChain server ready\n`);
@@ -743,3 +733,4 @@ async function startServer() {
 }
  
 startServer();
+ 
