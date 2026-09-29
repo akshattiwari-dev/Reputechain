@@ -1,27 +1,27 @@
 <div align="center">
 
-<img src="docs/screenshots/hero.png" alt="ReputeChain — Tamper-proof credential verification by Akshat Tiwari" width="100%"/>
-<img src="docs/screenshots/banner.png" alt="ReputeChain — block chain verified credential verification by Akshat Tiwari" width="100%"/>
+<img src="screenshots/hero.png" alt="ReputeChain — Tamper-proof credential verification by Akshat Tiwari" width="100%"/>
+<img src="screenshots/banner.png" alt="ReputeChain — block chain verified credential verification by Akshat Tiwari" width="100%"/>
 
 Tamper-proof credential verification, built on trust you can actually audit.
 ## Screenshots
 
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshots/landing.png" alt="Landing page hero"/><br/><b>Landing — hero</b></td>
-    <td align="center"><img src="docs/screenshots/landing-flow.png" alt="Three-step flow"/><br/><b>Landing — flow</b></td>
+    <td align="center"><img src="screenshots/landing.png" alt="Landing page hero"/><br/><b>Landing — hero</b></td>
+    <td align="center"><img src="screenshots/landing-flow.png" alt="Three-step flow"/><br/><b>Landing — flow</b></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/issuer-dashboard.png" alt="Issuer portal"/><br/><b>Issuer portal / mint</b></td>
-    <td align="center"><img src="docs/screenshots/holder-wallet.png" alt="Holder wallet"/><br/><b>Holder document wallet</b></td>
+    <td align="center"><img src="screenshots/issuer-dashboard.png" alt="Issuer portal"/><br/><b>Issuer portal / mint</b></td>
+    <td align="center"><img src="screenshots/holder-wallet.png" alt="Holder wallet"/><br/><b>Holder document wallet</b></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/verifier-form.png" alt="Verify form"/><br/><b>Verifier — hash / QR</b></td>
-    <td align="center"><img src="docs/screenshots/verifier-result.png" alt="Verification result"/><br/><b>Verification result</b></td>
+    <td align="center"><img src="screenshots/verifier-form.png" alt="Verify form"/><br/><b>Verifier — hash / QR</b></td>
+    <td align="center"><img src="screenshots/verifier-result.png" alt="Verification result"/><br/><b>Verification result</b></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/certificate-detail.png" alt="Certificate detail"/><br/><b>Public certificate page</b></td>
-    <td align="center"><img src="docs/screenshots/mobile-landing.png" alt="Mobile"/><br/><b>Mobile views</b></td>
+    <td align="center"><img src="screenshots/certificate-detail.png" alt="Certificate detail"/><br/><b>Public certificate page</b></td>
+    <td align="center"><img src="screenshots/mobile-landing.png" alt="Mobile"/><br/><b>Mobile views</b></td>
   </tr>
 </table>
 A decentralized platform for issuers, holders, and verifiers of verifiable credentials — anchored on Polygon.  
