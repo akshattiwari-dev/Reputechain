@@ -76,17 +76,17 @@ It was built as a portfolio piece that demonstrates production-shaped decisions 
 
 | Landing page hero | Issuer dashboard / mint flow |
 |---|---|
-| ![Landing page](./docs/screenshots/landing.png) | ![Issuer portal](./docs/screenshots/issuer-dashboard.png) |
+| ![Landing page](./screenshots/landing.png) | ![Issuer portal](./screenshots/issuer-dashboard.png) |
 | *Homepage with credential preview card and CTAs* | *Mint form, category selection, on-chain confirmation* |
 
 | Holder document wallet | Verifier / certificate detail |
 |---|---|
-| ![Holder wallet](./docs/screenshots/holder-wallet.png) | ![Verification result](./docs/screenshots/verifier-result.png) |
+| ![Holder wallet](./screenshots/holder-wallet.png) | ![Verification result](./screenshots/verifier-result.png) |
 | *Personal credential list with share & QR actions* | *Hash / QR verification result with on-chain proof* |
 
 | QR scan / public verification | Mobile views |
 |---|---|
-| ![QR verification](./docs/screenshots/qr-verify.png) | ![Mobile](./docs/screenshots/mobile.png) |
+| ![QR verification](./screenshots/qr-verify.png) | ![Mobile](./screenshots/mobile.png) |
 | *Camera-based QR scan and public certificate page* | *Responsive layouts across portals* |
 
 ---
