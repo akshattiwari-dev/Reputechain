@@ -4,25 +4,7 @@
 <img src="screenshots/banner.png" alt="ReputeChain — block chain verified credential verification by Akshat Tiwari" width="100%"/>
 
 Tamper-proof credential verification, built on trust you can actually audit.
-## Screenshots
 
-<table>
-  <tr>
-    <td align="center"><img src="screenshots/landing.png" alt="Landing page hero"/><br/><b>Landing — hero</b></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/issuer-dashboard.png" alt="Issuer portal"/><br/><b>Issuer portal / mint</b></td>
-    
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/verifier-form.png" alt="Verify form"/><br/><b>Verifier — hash / QR</b></td>
-    
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/certificate-detail.png" alt="Certificate detail"/><br/><b>Public certificate page</b></td>
-    
-  </tr>
-</table>
 A decentralized platform for issuers, holders, and verifiers of verifiable credentials — anchored on Polygon.  
 Issuers mint once. Holders own their documents. Anyone verifies cryptographically in seconds.
 
